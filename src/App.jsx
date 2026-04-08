@@ -3,7 +3,7 @@ import {
   Search, ArrowRight, Building2, Users, DollarSign, Github, Briefcase, Globe,
   Zap, TrendingUp, ChevronRight, Target, MessageSquare, Layers, Shield,
   Sparkles, BookOpen, Code2, Cpu, ArrowUpRight, SlidersHorizontal, X, Check,
-  AlertCircle, Lightbulb, FileText, Printer, Send, Edit3, Copy, Settings,
+  AlertCircle, Lightbulb, FileText, Printer, Send, Edit3, Copy,
   Activity, AlertTriangle, Rocket, Clock, Mail, ChevronDown, ChevronUp,
   Phone, Calendar, BarChart3, Grid3X3, List, RefreshCw, Key, Eye, EyeOff,
   Star, TrendingDown, UserMinus, Bell, PlayCircle
@@ -16,38 +16,33 @@ import {
 
 /* ═══════════════════════════════════════════════════════════════════════════════
    DESIGN TOKENS — Anthropic / Claude Design System
-   Warm parchment canvas, terracotta accent, exclusively warm-toned neutrals,
-   ring-based shadows, editorial serif/sans hierarchy.
    ═══════════════════════════════════════════════════════════════════════════════ */
 
 const C = {
-  parchment: "#f5f4ed",   // primary page bg — warm cream like quality paper
-  ivory:     "#faf9f5",   // card surfaces, elevated containers
-  white:     "#ffffff",   // max contrast elements
-  sand:      "#e8e6dc",   // button bg, interactive surfaces
-  nearBlack: "#141413",   // primary text, dark surfaces — warm olive-tinted
-  dark:      "#30302e",   // dark containers, nav borders — warm charcoal
-  charcoal:  "#4d4c48",   // button text on light surfaces
-  olive:     "#5e5d59",   // secondary body text — warm medium-dark
-  stone:     "#87867f",   // tertiary text, metadata
-  darkWarm:  "#3d3d3a",   // dark text links
-  silver:    "#b0aea5",   // text on dark surfaces — warm parchment tint
-  borderL:   "#f0eee6",   // light borders — barely visible cream
-  borderM:   "#e8e6dc",   // prominent borders, dividers
-  ringW:     "#d1cfc5",   // ring shadow for hover/focus
-  terra:     "#c96442",   // brand CTA — burnt orange, earthy, un-tech
-  coral:     "#d97757",   // lighter brand variant for accents
-  // health palette — warm tones only, no cool blues/greens
-  healthGood:    "#6b8f5e", // muted sage green — warm undertone
-  healthWatch:   "#c9a842", // warm amber
-  healthRisk:    "#c96442", // terracotta (matches brand)
-  healthCrit:    "#a13d2d", // deep warm red
+  parchment: "#f5f4ed",
+  ivory:     "#faf9f5",
+  white:     "#ffffff",
+  sand:      "#e8e6dc",
+  nearBlack: "#141413",
+  dark:      "#30302e",
+  charcoal:  "#4d4c48",
+  olive:     "#5e5d59",
+  stone:     "#87867f",
+  darkWarm:  "#3d3d3a",
+  silver:    "#b0aea5",
+  borderL:   "#f0eee6",
+  borderM:   "#e8e6dc",
+  ringW:     "#d1cfc5",
+  terra:     "#c96442",
+  coral:     "#d97757",
+  healthGood:    "#6b8f5e",
+  healthWatch:   "#c9a842",
+  healthRisk:    "#c96442",
+  healthCrit:    "#a13d2d",
 };
 
 const sans = "'Styrene A Web','Söhne',ui-sans-serif,system-ui,-apple-system,sans-serif";
 const serif = "Georgia,'Palatino Linotype','Book Antiqua',serif";
-
-/* Ring shadow helper — Claude's signature depth pattern */
 const ring = (color = C.ringW) => `0 0 0 1px ${color}`;
 const whisper = "0 4px 24px rgba(0,0,0,0.04)";
 
@@ -453,7 +448,6 @@ const ACCOUNTS = [
   }
 ];
 
-/* Populate briefings for today's top 5 */
 const DAILY_BRIEFING = ACCOUNTS.filter(a => a.briefing).sort((a, b) => {
   const order = { churn: 0, expansion: 1, milestone: 2, reengagement: 3 };
   return (order[a.briefing.trigger] ?? 5) - (order[b.briefing.trigger] ?? 5);
@@ -507,10 +501,8 @@ const PLAYBOOKS = {
    ═══════════════════════════════════════════════════════════════════════════════ */
 
 export default function ClaudAE() {
-  const [mainView, setMainView] = useState("briefing"); // briefing | heatmap
+  const [mainView, setMainView] = useState("briefing");
   const [selectedId, setSelectedId] = useState(null);
-  const [apiKey, setApiKey] = useState("");
-  const [showSettings, setShowSettings] = useState(false);
   const [toast, setToast] = useState(null);
 
   const showToast = useCallback((msg) => {
@@ -522,7 +514,6 @@ export default function ClaudAE() {
   return (
     <div style={{ fontFamily: serif, background: C.parchment, color: C.nearBlack, minHeight: "100vh", position: "relative" }}>
 
-      {/* Toast */}
       {toast && (
         <div style={{
           position: "fixed", bottom: 24, left: "50%", transform: "translateX(-50%)", zIndex: 999,
@@ -533,9 +524,6 @@ export default function ClaudAE() {
           <Check size={15} color={C.coral} /> {toast}
         </div>
       )}
-
-      {/* Settings Modal */}
-      {showSettings && <SettingsModal apiKey={apiKey} setApiKey={setApiKey} onClose={() => setShowSettings(false)} />}
 
       {/* Header */}
       <header style={{
@@ -557,65 +545,52 @@ export default function ClaudAE() {
           }}>by Zi Pan</span>
         </div>
 
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          {/* View Toggle */}
-          <div style={{
-            display: "flex", gap: 2, background: C.sand, borderRadius: 9, padding: 3,
-            boxShadow: ring(C.ringW),
-          }}>
-            {[
-              { k: "briefing", l: "Daily Briefing", i: Bell },
-              { k: "heatmap", l: "Portfolio", i: Grid3X3 },
-            ].map(({ k, l, i: Icon }) => (
-              <button key={k} onClick={() => { setMainView(k); setSelectedId(null); }} style={{
-                fontFamily: sans, fontSize: 12, fontWeight: 500, padding: "5px 14px", borderRadius: 7,
-                border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 5,
-                background: mainView === k ? C.white : "transparent",
-                color: mainView === k ? C.nearBlack : C.stone,
-                boxShadow: mainView === k ? "0 1px 3px rgba(0,0,0,0.06)" : "none",
-                transition: "all .2s",
-              }}>
-                <Icon size={13} /> {l}
-              </button>
-            ))}
-          </div>
-
-          {/* Settings */}
-          <button onClick={() => setShowSettings(true)} style={{
-            width: 34, height: 34, borderRadius: 8, border: `1px solid ${C.borderM}`,
-            background: C.white, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
-            position: "relative",
-          }}>
-            <Settings size={15} color={C.olive} />
-            {apiKey && <div style={{ position: "absolute", top: -2, right: -2, width: 8, height: 8, borderRadius: 4, background: C.healthGood, border: `2px solid ${C.ivory}` }} />}
-          </button>
+        <div style={{
+          display: "flex", gap: 2, background: C.sand, borderRadius: 9, padding: 3,
+          boxShadow: ring(C.ringW),
+        }}>
+          {[
+            { k: "briefing", l: "Daily Briefing", i: Bell },
+            { k: "heatmap", l: "Portfolio", i: Grid3X3 },
+          ].map(({ k, l, i: Icon }) => (
+            <button key={k} onClick={() => { setMainView(k); setSelectedId(null); }} style={{
+              fontFamily: sans, fontSize: 12, fontWeight: 500, padding: "5px 14px", borderRadius: 7,
+              border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 5,
+              background: mainView === k ? C.white : "transparent",
+              color: mainView === k ? C.nearBlack : C.stone,
+              boxShadow: mainView === k ? "0 1px 3px rgba(0,0,0,0.06)" : "none",
+              transition: "all .2s",
+            }}>
+              <Icon size={13} /> {l}
+            </button>
+          ))}
         </div>
       </header>
 
-      {/* Main Content */}
-      <div style={{ display: "flex", height: "calc(100vh - 56px)" }}>
+      {/* Main layout */}
+      <div style={{ display: "flex", height: "calc(100vh - 56px)", overflow: "hidden" }}>
 
-        {/* Left: Main View */}
+        {/* Left panel — no overflow here; scrolling handled by inner wrapper */}
         <div style={{
-          width: selected ? 420 : "100%", maxWidth: selected ? 420 : 940,
-          margin: selected ? 0 : "0 auto",
+          width: selected ? 420 : "100%",
           borderRight: selected ? `1px solid ${C.borderL}` : "none",
           background: selected ? C.ivory : C.parchment,
           display: "flex", flexDirection: "column",
-          transition: "all .35s cubic-bezier(.4,0,.2,1)",
-          overflow: "auto",
+          transition: "width .35s cubic-bezier(.4,0,.2,1)",
         }}>
-          {mainView === "briefing" ? (
-            <BriefingView accounts={DAILY_BRIEFING} onSelect={setSelectedId} selectedId={selectedId} showToast={showToast} apiKey={apiKey} />
-          ) : (
-            <HeatmapView accounts={ACCOUNTS} onSelect={setSelectedId} selectedId={selectedId} />
-          )}
+          <div style={{ flex: 1, overflow: "auto" }}>
+            {mainView === "briefing" ? (
+              <BriefingView accounts={DAILY_BRIEFING} onSelect={setSelectedId} selectedId={selectedId} />
+            ) : (
+              <HeatmapView accounts={ACCOUNTS} onSelect={setSelectedId} selectedId={selectedId} />
+            )}
+          </div>
         </div>
 
-        {/* Right: Detail Panel */}
+        {/* Right: Detail — this panel stretches to the viewport edge, so its scrollbar is far-right */}
         {selected && (
           <div style={{ flex: 1, overflow: "auto", background: C.parchment, animation: "fadeIn .25s ease" }}>
-            <AccountDetail account={selected} onClose={() => setSelectedId(null)} showToast={showToast} apiKey={apiKey} />
+            <AccountDetail account={selected} onClose={() => setSelectedId(null)} showToast={showToast} />
           </div>
         )}
       </div>
@@ -626,8 +601,9 @@ export default function ClaudAE() {
         @keyframes fadeIn { from{opacity:0} to{opacity:1} }
         @keyframes slideIn { from{opacity:0;transform:translateX(16px)} to{opacity:1;transform:translateX(0)} }
         @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.5} }
+        @keyframes spin { from{transform:rotate(0)} to{transform:rotate(360deg)} }
         *{box-sizing:border-box;margin:0;padding:0}
-        ::-webkit-scrollbar{width:5px}
+        ::-webkit-scrollbar{width:6px}
         ::-webkit-scrollbar-track{background:transparent}
         ::-webkit-scrollbar-thumb{background:${C.borderM};border-radius:3px}
         input:focus,textarea:focus{outline:2px solid #3898ec;outline-offset:-1px}
@@ -638,74 +614,10 @@ export default function ClaudAE() {
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════════
-   SETTINGS MODAL
-   ═══════════════════════════════════════════════════════════════════════════════ */
-
-function SettingsModal({ apiKey, setApiKey, onClose }) {
-  const [show, setShow] = useState(false);
-  const [tempKey, setTempKey] = useState(apiKey);
-  return (
-    <div style={{
-      position: "fixed", inset: 0, zIndex: 100,
-      background: "rgba(20,20,19,0.45)", backdropFilter: "blur(4px)",
-      display: "flex", alignItems: "center", justifyContent: "center",
-    }} onClick={onClose}>
-      <div onClick={e => e.stopPropagation()} style={{
-        background: C.ivory, borderRadius: 16, padding: "28px 32px", width: 420,
-        boxShadow: "0 24px 64px rgba(0,0,0,0.18)", animation: "fadeSlideIn .25s ease",
-        border: `1px solid ${C.borderL}`,
-      }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
-          <h2 style={{ fontSize: 20, fontWeight: 500 }}>Settings</h2>
-          <button onClick={onClose} style={{ border: "none", background: "none", cursor: "pointer" }}><X size={18} color={C.stone} /></button>
-        </div>
-        <div style={{ marginBottom: 16 }}>
-          <label style={{ fontFamily: sans, fontSize: 12, fontWeight: 600, color: C.olive, display: "block", marginBottom: 6 }}>Anthropic API Key</label>
-          <div style={{ display: "flex", gap: 6 }}>
-            <div style={{ flex: 1, position: "relative" }}>
-              <input
-                type={show ? "text" : "password"}
-                value={tempKey}
-                onChange={e => setTempKey(e.target.value)}
-                placeholder="sk-ant-..."
-                style={{
-                  width: "100%", padding: "9px 36px 9px 12px", borderRadius: 8,
-                  border: `1px solid ${C.borderM}`, fontFamily: sans, fontSize: 13,
-                  color: C.nearBlack, background: C.white,
-                }}
-              />
-              <button onClick={() => setShow(!show)} style={{
-                position: "absolute", right: 8, top: "50%", transform: "translateY(-50%)",
-                border: "none", background: "none", cursor: "pointer",
-              }}>
-                {show ? <EyeOff size={14} color={C.stone} /> : <Eye size={14} color={C.stone} />}
-              </button>
-            </div>
-          </div>
-          <p style={{ fontFamily: sans, fontSize: 11.5, color: C.stone, marginTop: 8, lineHeight: 1.4 }}>
-            Enables live Claude-powered email generation and account summaries. Without a key, the tool uses pre-written templates.
-          </p>
-        </div>
-        <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
-          <button onClick={onClose} style={{
-            fontFamily: sans, fontSize: 13, fontWeight: 500, padding: "8px 18px", borderRadius: 8,
-            border: `1px solid ${C.borderM}`, background: C.white, color: C.charcoal, cursor: "pointer",
-          }}>Cancel</button>
-          <button onClick={() => { setApiKey(tempKey); onClose(); }} style={{
-            fontFamily: sans, fontSize: 13, fontWeight: 500, padding: "8px 18px", borderRadius: 8,
-            border: "none", background: C.terra, color: C.ivory, cursor: "pointer",
-          }}>Save</button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/* ═══════════════════════════════════════════════════════════════════════════════
    DAILY BRIEFING VIEW
    ═══════════════════════════════════════════════════════════════════════════════ */
 
-function BriefingView({ accounts, onSelect, selectedId, showToast, apiKey }) {
+function BriefingView({ accounts, onSelect, selectedId }) {
   const today = new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
   return (
     <div style={{ padding: "28px 24px 40px", maxWidth: 700, margin: "0 auto", width: "100%" }}>
@@ -716,10 +628,7 @@ function BriefingView({ accounts, onSelect, selectedId, showToast, apiKey }) {
         </p>
       </div>
 
-      {/* Summary stats */}
-      <div style={{
-        display: "flex", gap: 12, marginBottom: 28,
-      }}>
+      <div style={{ display: "flex", gap: 12, marginBottom: 28 }}>
         {[
           { label: "Total Accounts", value: ACCOUNTS.length, color: C.nearBlack },
           { label: "Stars", value: ACCOUNTS.filter(a => a.tier === "star").length, color: C.healthGood },
@@ -736,25 +645,18 @@ function BriefingView({ accounts, onSelect, selectedId, showToast, apiKey }) {
         ))}
       </div>
 
-      {/* Briefing cards */}
       {accounts.map((a, i) => {
         const trigger = triggerMeta[a.briefing.trigger];
         const TrigIcon = trigger.icon;
         const isSelected = selectedId === a.id;
         return (
-          <div
-            key={a.id}
-            style={{
-              background: C.white, borderRadius: 14, padding: "20px 22px",
-              border: `1px solid ${isSelected ? C.terra : C.borderL}`,
-              boxShadow: isSelected ? `0 0 0 1px ${C.terra}, ${whisper}` : whisper,
-              marginBottom: 12,
-              animation: `fadeSlideIn .4s ease ${i * .07}s both`,
-              cursor: "pointer", transition: "all .2s",
-            }}
-            onClick={() => onSelect(a.id)}
-          >
-            {/* Header row */}
+          <div key={a.id} onClick={() => onSelect(a.id)} style={{
+            background: C.white, borderRadius: 14, padding: "20px 22px",
+            border: `1px solid ${isSelected ? C.terra : C.borderL}`,
+            boxShadow: isSelected ? `0 0 0 1px ${C.terra}, ${whisper}` : whisper,
+            marginBottom: 12, animation: `fadeSlideIn .4s ease ${i * .07}s both`,
+            cursor: "pointer", transition: "all .2s",
+          }}>
             <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
               <div style={{
                 width: 42, height: 42, borderRadius: 10, background: C.nearBlack,
@@ -774,20 +676,14 @@ function BriefingView({ accounts, onSelect, selectedId, showToast, apiKey }) {
                 </div>
                 <div style={{ fontFamily: sans, fontSize: 12, color: C.stone }}>{a.industry} · {a.mrr} MRR ({a.mrrTrend})</div>
               </div>
-              <div style={{ textAlign: "center" }}>
-                <MiniHealthRing health={a.health} size={38} />
-              </div>
+              <MiniHealthRing health={a.health} size={38} />
             </div>
-
-            {/* Reason */}
             <div style={{
               background: trigger.bg, borderRadius: 9, padding: "11px 14px", marginBottom: 12,
               border: `1px solid ${trigger.color}18`,
             }}>
               <p style={{ fontFamily: sans, fontSize: 13, lineHeight: 1.5, color: C.charcoal }}>{a.briefing.reason}</p>
             </div>
-
-            {/* Recommended action */}
             <div style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
               <Lightbulb size={14} color={C.terra} style={{ flexShrink: 0, marginTop: 2 }} />
               <p style={{ fontFamily: sans, fontSize: 12.5, lineHeight: 1.45, color: C.olive }}>
@@ -822,7 +718,6 @@ function HeatmapView({ accounts, onSelect, selectedId }) {
 
   return (
     <div style={{ padding: "20px 20px 40px" }}>
-      {/* Search & Filters */}
       <div style={{ marginBottom: 16 }}>
         <div style={{
           display: "flex", alignItems: "center", gap: 8, background: C.white,
@@ -858,7 +753,6 @@ function HeatmapView({ accounts, onSelect, selectedId }) {
         </div>
       </div>
 
-      {/* Grid */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(175px, 1fr))", gap: 10 }}>
         {filtered.map((a, i) => {
           const ti = tierInfo(a.tier);
@@ -873,7 +767,6 @@ function HeatmapView({ accounts, onSelect, selectedId }) {
               animation: `fadeSlideIn .35s ease ${i * .03}s both`,
               position: "relative", overflow: "hidden",
             }}>
-              {/* Alert indicator */}
               {a.briefing && (
                 <div style={{
                   position: "absolute", top: 8, right: 8, width: 8, height: 8, borderRadius: 4,
@@ -924,7 +817,7 @@ function HeatmapView({ accounts, onSelect, selectedId }) {
    ACCOUNT DETAIL
    ═══════════════════════════════════════════════════════════════════════════════ */
 
-function AccountDetail({ account: a, onClose, showToast, apiKey }) {
+function AccountDetail({ account: a, onClose, showToast }) {
   const [tab, setTab] = useState("overview");
   const ti = tierInfo(a.tier);
 
@@ -943,7 +836,6 @@ function AccountDetail({ account: a, onClose, showToast, apiKey }) {
         fontSize: 12, color: C.stone, display: "flex", alignItems: "center", gap: 5, marginBottom: 16,
       }}><X size={13} /> Close</button>
 
-      {/* Header Card */}
       <div style={{
         background: C.nearBlack, borderRadius: 14, padding: "24px 26px", color: C.ivory,
         marginBottom: 20, animation: "slideIn .35s ease",
@@ -975,7 +867,6 @@ function AccountDetail({ account: a, onClose, showToast, apiKey }) {
           </div>
         </div>
 
-        {/* Stats row */}
         <div style={{ display: "flex", gap: 16, marginTop: 18, paddingTop: 16, borderTop: `1px solid ${C.dark}`, flexWrap: "wrap" }}>
           {[
             { i: DollarSign, l: "MRR", v: a.mrr, c: C.coral },
@@ -996,7 +887,6 @@ function AccountDetail({ account: a, onClose, showToast, apiKey }) {
         </div>
       </div>
 
-      {/* Tabs */}
       <div style={{
         display: "flex", gap: 2, marginBottom: 20, background: C.sand, borderRadius: 9, padding: 3,
         boxShadow: ring(C.ringW), overflowX: "auto",
@@ -1019,14 +909,14 @@ function AccountDetail({ account: a, onClose, showToast, apiKey }) {
         {tab === "signals" && <SignalsTab a={a} />}
         {tab === "usecases" && <UseCasesTab a={a} />}
         {tab === "engagement" && <EngagementTab a={a} showToast={showToast} />}
-        {tab === "outreach" && <OutreachTab a={a} showToast={showToast} apiKey={apiKey} />}
+        {tab === "outreach" && <OutreachTab a={a} showToast={showToast} />}
       </div>
     </div>
   );
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════════
-   SCORE RINGS & SHARED COMPONENTS
+   SHARED COMPONENTS
    ═══════════════════════════════════════════════════════════════════════════════ */
 
 function ScoreRing({ label, score, color, size = 56 }) {
@@ -1079,7 +969,6 @@ function OverviewTab({ a }) {
 
   return (
     <div>
-      {/* Usage Chart */}
       <Card style={{ padding: "18px 16px", marginBottom: 16 }}>
         <h3 style={{ fontSize: 16, fontWeight: 500, paddingLeft: 6, marginBottom: 4 }}>MRR Trend ($K)</h3>
         <p style={{ fontFamily: sans, fontSize: 11, color: C.stone, paddingLeft: 6, marginBottom: 10 }}>Last 12 months</p>
@@ -1099,25 +988,18 @@ function OverviewTab({ a }) {
           </AreaChart>
         </ResponsiveContainer>
       </Card>
-
-      {/* Quick Intel */}
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-        <Card style={{ padding: "14px 16px" }}>
-          <div style={{ fontFamily: sans, fontSize: 10, color: C.stone, textTransform: "uppercase", letterSpacing: .4, marginBottom: 4 }}>Champion</div>
-          <div style={{ fontFamily: sans, fontSize: 13, fontWeight: 500, color: C.nearBlack }}>{a.champion}</div>
-        </Card>
-        <Card style={{ padding: "14px 16px" }}>
-          <div style={{ fontFamily: sans, fontSize: 10, color: C.stone, textTransform: "uppercase", letterSpacing: .4, marginBottom: 4 }}>Last Touch</div>
-          <div style={{ fontFamily: sans, fontSize: 13, fontWeight: 500, color: C.nearBlack }}>{a.engagement.lastTouch}</div>
-        </Card>
-        <Card style={{ padding: "14px 16px" }}>
-          <div style={{ fontFamily: sans, fontSize: 10, color: C.stone, textTransform: "uppercase", letterSpacing: .4, marginBottom: 4 }}>Current AI Stack</div>
-          <div style={{ fontFamily: sans, fontSize: 12.5, fontWeight: 500, color: C.nearBlack, lineHeight: 1.4 }}>{a.competitiveIntel.currentStack}</div>
-        </Card>
-        <Card style={{ padding: "14px 16px" }}>
-          <div style={{ fontFamily: sans, fontSize: 10, color: C.stone, textTransform: "uppercase", letterSpacing: .4, marginBottom: 4 }}>Switching Friction</div>
-          <div style={{ fontFamily: sans, fontSize: 12.5, fontWeight: 500, color: C.nearBlack, lineHeight: 1.4 }}>{a.competitiveIntel.switching}</div>
-        </Card>
+        {[
+          { l: "Champion", v: a.champion },
+          { l: "Last Touch", v: a.engagement.lastTouch },
+          { l: "Current AI Stack", v: a.competitiveIntel.currentStack },
+          { l: "Switching Friction", v: a.competitiveIntel.switching },
+        ].map(({ l, v }) => (
+          <Card key={l} style={{ padding: "14px 16px" }}>
+            <div style={{ fontFamily: sans, fontSize: 10, color: C.stone, textTransform: "uppercase", letterSpacing: .4, marginBottom: 4 }}>{l}</div>
+            <div style={{ fontFamily: sans, fontSize: 12.5, fontWeight: 500, color: C.nearBlack, lineHeight: 1.4 }}>{v}</div>
+          </Card>
+        ))}
       </div>
     </div>
   );
@@ -1172,7 +1054,6 @@ function UseCasesTab({ a }) {
     name: uc.name.length > 22 ? uc.name.slice(0, 22) + "..." : uc.name,
     value: uc.estimate, potential: uc.potential,
   }));
-
   return (
     <div>
       <Card style={{ padding: "16px 12px", marginBottom: 16 }}>
@@ -1222,7 +1103,6 @@ function EngagementTab({ a, showToast }) {
 
   return (
     <div>
-      {/* Current Status */}
       <Card style={{ padding: "16px 18px", marginBottom: 16 }}>
         <h3 style={{ fontSize: 16, fontWeight: 500, marginBottom: 12 }}>Engagement Status</h3>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
@@ -1240,7 +1120,6 @@ function EngagementTab({ a, showToast }) {
         </div>
       </Card>
 
-      {/* Playbook */}
       <Card style={{ padding: "18px 20px" }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
           <h3 style={{ fontSize: 16, fontWeight: 500 }}>{pb.name} Playbook</h3>
@@ -1279,7 +1158,6 @@ function EngagementTab({ a, showToast }) {
         })}
       </Card>
 
-      {/* All playbooks */}
       <div style={{ marginTop: 16 }}>
         <h4 style={{ fontFamily: sans, fontSize: 11, color: C.stone, textTransform: "uppercase", letterSpacing: .5, marginBottom: 10 }}>All Playbook Templates</h4>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
@@ -1299,10 +1177,10 @@ function EngagementTab({ a, showToast }) {
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════════
-   OUTREACH TAB
+   OUTREACH TAB — calls /api/generate (Vercel serverless) instead of direct API
    ═══════════════════════════════════════════════════════════════════════════════ */
 
-function OutreachTab({ a, showToast, apiKey }) {
+function OutreachTab({ a, showToast }) {
   const [copied, setCopied] = useState(null);
   const [senderName, setSenderName] = useState("Zi");
   const [editing, setEditing] = useState(false);
@@ -1319,34 +1197,30 @@ function OutreachTab({ a, showToast, apiKey }) {
   }
 
   async function generateWithClaude() {
-    if (!apiKey) { showToast("Add your API key in Settings to use Claude"); return; }
     setGenerating(true);
     try {
-      const res = await fetch("https://api.anthropic.com/v1/messages", {
+      const res = await fetch("/api/generate", {
         method: "POST",
-        headers: { "Content-Type": "application/json", "x-api-key": apiKey, "anthropic-version": "2023-06-01", "anthropic-dangerous-direct-browser-access": "true" },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          model: "claude-sonnet-4-6",
-          max_tokens: 400,
-          messages: [{ role: "user", content: `You are an Emerging Account Executive at Anthropic. Write a short, warm outreach email to ${a.name} (${a.description}). Context: Health score ${a.health}/100, MRR ${a.mrr} (${a.mrrTrend} MoM), current AI stack: ${a.competitiveIntel.currentStack}. Pain point: ${a.competitiveIntel.pain}. Top use case: ${a.useCases[0]?.name}. Goal: ${a.tier === "critical" ? "retain the account and understand churn risk" : "expand usage and deepen the relationship"}. Keep it under 120 words, conversational, specific to their situation. Sign off as ${senderName} from Anthropic. No subject line, just the body.` }],
+          prompt: `You are an Emerging Account Executive at Anthropic. Write a short, warm outreach email to ${a.name} (${a.description}). Context: Health score ${a.health}/100, MRR ${a.mrr} (${a.mrrTrend} MoM), current AI stack: ${a.competitiveIntel.currentStack}. Pain point: ${a.competitiveIntel.pain}. Top use case: ${a.useCases[0]?.name}. Goal: ${a.tier === "critical" ? "retain the account and understand churn risk" : "expand usage and deepen the relationship"}. Keep it under 120 words, conversational, specific to their situation. Sign off as ${senderName} from Anthropic. No subject line, just the body.`
         }),
       });
       const data = await res.json();
-      if (data.content?.[0]?.text) {
-        setEmailBody(data.content[0].text);
+      if (data.text) {
+        setEmailBody(data.text);
         showToast("Email generated with Claude");
       } else {
-        showToast("Error — check your API key");
+        showToast(data.error || "Error generating email — check Vercel environment variable");
       }
     } catch (e) {
-      showToast("API error — check your key and try again");
+      showToast("Could not reach /api/generate — is ANTHROPIC_API_KEY set in Vercel?");
     }
     setGenerating(false);
   }
 
   return (
     <div>
-      {/* Angle cards */}
       {a.outreachAngles.map((angle, i) => (
         <Card key={i} style={{ padding: "14px 16px", marginBottom: 8, animation: `slideIn .3s ease ${i * .06}s both` }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
@@ -1363,7 +1237,6 @@ function OutreachTab({ a, showToast, apiKey }) {
         </Card>
       ))}
 
-      {/* Email Draft */}
       <Card style={{ padding: "18px 20px", marginTop: 14 }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
           <h3 style={{ fontSize: 16, fontWeight: 500 }}>Outreach Email</h3>
@@ -1411,7 +1284,6 @@ function OutreachTab({ a, showToast, apiKey }) {
           )}
         </div>
 
-        {/* Action buttons */}
         <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
           <button onClick={() => handleCopy(emailBody, "email")} style={{
             flex: 1, fontFamily: sans, fontSize: 12, fontWeight: 500, padding: "9px 0", borderRadius: 8,
@@ -1435,7 +1307,6 @@ function OutreachTab({ a, showToast, apiKey }) {
         </div>
       </Card>
 
-      {/* Account Brief */}
       <button onClick={() => showToast("Account brief generated — ready to share")} style={{
         marginTop: 14, width: "100%", fontFamily: sans, fontSize: 12.5, fontWeight: 500,
         padding: "11px 0", borderRadius: 9, border: `1px solid ${C.borderM}`,
@@ -1444,8 +1315,6 @@ function OutreachTab({ a, showToast, apiKey }) {
       }}>
         <Printer size={14} /> Generate Account Brief
       </button>
-
-      <style>{`@keyframes spin { from{transform:rotate(0)} to{transform:rotate(360deg)} }`}</style>
     </div>
   );
 }
